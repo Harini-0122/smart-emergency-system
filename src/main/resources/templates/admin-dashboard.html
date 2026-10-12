@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Smart Emergency</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        .navbar {
+            background: #ffffff;
+            padding: 18px 5%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .brand {
+            color: #2563eb;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .nav-label {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .container {
+            width: 94%;
+            max-width: 1500px;
+            margin: 35px auto;
+        }
+
+        .page-title {
+            font-size: 30px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .button {
+            display: inline-block;
+            border: none;
+            border-radius: 6px;
+            padding: 11px 16px;
+            background: #2563eb;
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .button:hover {
+            background: #1d4ed8;
+        }
+
+        .button-red {
+            background: #ef4444;
+        }
+
+        .button-red:hover {
+            background: #dc2626;
+        }
+
+        .button-light {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .button-light:hover {
+            background: #bae6fd;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 23px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.04);
+            border-left: 4px solid #2563eb;
+        }
+
+        .stat-card.pending {
+            border-left-color: #f59e0b;
+        }
+
+        .stat-card.progress {
+            border-left-color: #3b82f6;
+        }
+
+        .stat-card.resolved {
+            border-left-color: #16a34a;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .stat-number {
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        .panel {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 3px 15px rgba(15, 23, 42, 0.04);
+        }
+
+        .panel-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 12px;
+        }
+
+        .panel-heading h2 {
+            font-size: 22px;
+        }
+
+        .panel-description {
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .alert {
+            padding: 13px 16px;
+            border-radius: 7px;
+            margin-bottom: 18px;
+            font-size: 14px;
+        }
+
+        .success {
+            color: #166534;
+            background: #dcfce7;
+        }
+
+        .error {
+            color: #991b1b;
+            background: #fee2e2;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            min-width: 1250px;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead {
+            background: #f8fafc;
+        }
+
+        th {
+            color: #475569;
+            text-align: left;
+            padding: 15px 10px;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 16px 10px;
+            border-bottom: 1px solid #e2e8f0;
+            vertical-align: top;
+            line-height: 1.6;
+        }
+
+        tbody tr:hover {
+            background: #f8fbff;
+        }
+
+        .email-cell {
+            overflow-wrap: anywhere;
+            min-width: 140px;
+        }
+
+        .location-cell {
+            min-width: 210px;
+            max-width: 300px;
+            overflow-wrap: anywhere;
+        }
+
+        .description-cell {
+            min-width: 130px;
+            max-width: 200px;
+            overflow-wrap: anywhere;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .status-pending {
+            color: #92400e;
+            background: #fef3c7;
+        }
+
+        .status-progress {
+            color: #1d4ed8;
+            background: #dbeafe;
+        }
+
+        .status-resolved {
+            color: #166534;
+            background: #dcfce7;
+        }
+
+        .map-link {
+            display: inline-block;
+            padding: 7px 10px;
+            border-radius: 5px;
+            background: #e0f2fe;
+            color: #0369a1;
+            text-decoration: none;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .map-link:hover {
+            background: #bae6fd;
+        }
+
+        .unavailable {
+            color: #94a3b8;
+            font-size: 12px;
+        }
+
+        .status-form {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 105px;
+        }
+
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #cbd5e1;
+            border-radius: 5px;
+            background: #ffffff;
+            color: #334155;
+        }
+
+        .update-button {
+            width: 100%;
+            padding: 10px 8px;
+        }
+
+        .time-cell {
+            min-width: 145px;
+            white-space: nowrap;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 35px;
+            color: #64748b;
+        }
+
+        footer {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 12px;
+            padding: 25px 15px;
+        }
+
+        @media (max-width: 1000px) {
+            .stats {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .container {
+                width: 96%;
+                margin-top: 25px;
+            }
+
+            .panel {
+                padding: 16px;
+            }
+        }
+
+        @media (max-width: 550px) {
+            .navbar {
+                padding: 15px;
+            }
+
+            .brand {
+                font-size: 18px;
+            }
+
+            .nav-right {
+                gap: 8px;
+            }
+
+            .nav-label {
+                display: none;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .page-title {
+                font-size: 25px;
+            }
+
+            .panel-heading h2 {
+                font-size: 19px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="navbar">
+    <div class="brand">🚨 Smart Emergency</div>
+
+    <div class="nav-right">
+        <span class="nav-label">Administrator Portal</span>
+
+        <form th:action="@{/logout}" method="post">
+            <input type="hidden"
+                   th:if="${_csrf != null}"
+                   th:name="${_csrf.parameterName}"
+                   th:value="${_csrf.token}">
+
+            <button type="submit" class="button button-red">
+                Logout
+            </button>
+        </form>
+    </div>
+</header>
+
+<main class="container">
+
+    <h1 class="page-title">Admin Dashboard</h1>
+
+    <p class="subtitle">
+        Monitor emergency reports, view their locations, and manage response statuses.
+    </p>
+
+    <!-- Success and error messages -->
+    <div th:if="${successMessage != null}"
+         class="alert success"
+         th:text="${successMessage}">
+    </div>
+
+    <div th:if="${errorMessage != null}"
+         class="alert error"
+         th:text="${errorMessage}">
+    </div>
+
+    <!-- Dashboard statistics -->
+    <section class="stats">
+
+        <div class="stat-card">
+            <div class="stat-label">Total Emergencies</div>
+            <div class="stat-number"
+                 th:text="${totalReports}">0</div>
+        </div>
+
+        <div class="stat-card pending">
+            <div class="stat-label">Pending</div>
+            <div class="stat-number"
+                 th:text="${pendingCount}">0</div>
+        </div>
+
+        <div class="stat-card progress">
+            <div class="stat-label">In Progress</div>
+            <div class="stat-number"
+                 th:text="${inProgressCount}">0</div>
+        </div>
+
+        <div class="stat-card resolved">
+            <div class="stat-label">Resolved</div>
+            <div class="stat-number"
+                 th:text="${resolvedCount}">0</div>
+        </div>
+
+    </section>
+
+    <!-- Emergency reports table -->
+    <section class="panel">
+
+        <div class="panel-heading">
+            <h2>All Emergency Reports</h2>
+
+            <a th:href="@{/admin/map}" class="button">
+                View All Emergency Locations
+            </a>
+        </div>
+
+        <p class="panel-description">
+            Review citizen reports, open saved map locations, and update emergency statuses.
+        </p>
+
+        <div class="table-wrapper">
+            <table>
+
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Citizen Email</th>
+                    <th>Emergency</th>
+                    <th>Type</th>
+                    <th>Location</th>
+                    <th>Description</th>
+                    <th>Current Status</th>
+                    <th>Reported On</th>
+                    <th>Response Started</th>
+                    <th>Resolved On</th>
+                    <th>Map</th>
+                    <th>Update Status</th>
+                </tr>
+                </thead>
+
+                <tbody>
+
+                <tr th:each="report : ${reports}">
+
+                    <td th:text="${report.id}">1</td>
+
+                    <td class="email-cell"
+                        th:text="${report.reporterEmail}">
+                        citizen@example.com
+                    </td>
+
+                    <td th:text="${report.title}">
+                        Road accident
+                    </td>
+
+                    <td th:text="${report.emergencyType}">
+                        Accident
+                    </td>
+
+                    <td class="location-cell"
+                        th:text="${report.location}">
+                        Hyderabad
+                    </td>
+
+                    <td class="description-cell"
+                        th:text="${report.description}">
+                        Emergency details
+                    </td>
+
+                    <td>
+                        <span class="status"
+                              th:classappend="${report.status == 'PENDING'} ? ' status-pending' : (${report.status == 'IN_PROGRESS'} ? ' status-progress' : (${report.status == 'RESOLVED'} ? ' status-resolved' : ''))"
+                              th:text="${report.status}">
+                            PENDING
+                        </span>
+                    </td>
+
+                    <td class="time-cell"
+                        th:text="${report.createdAt != null ? #temporals.format(report.createdAt, 'dd MMM yyyy, hh:mm a') : 'Not available'}">
+                        Not available
+                    </td>
+
+                    <td class="time-cell"
+                        th:text="${report.responseStartedAt != null ? #temporals.format(report.responseStartedAt, 'dd MMM yyyy, hh:mm a') : 'Not started'}">
+                        Not started
+                    </td>
+
+                    <td class="time-cell"
+                        th:text="${report.resolvedAt != null ? #temporals.format(report.resolvedAt, 'dd MMM yyyy, hh:mm a') : 'Not resolved'}">
+                        Not resolved
+                    </td>
+
+                    <td>
+                        <a th:if="${report.latitude != null and report.longitude != null}"
+                           th:href="|https://www.openstreetmap.org/?mlat=${report.latitude}&amp;mlon=${report.longitude}#map=17/${report.latitude}/${report.longitude}|"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="map-link">
+                            View Map
+                        </a>
+
+                        <span th:unless="${report.latitude != null and report.longitude != null}"
+                              class="unavailable">
+                            Not available
+                        </span>
+                    </td>
+
+                    <td>
+                        <form class="status-form"
+                              th:action="@{/admin/reports/{id}/status(id=${report.id})}"
+                              method="post">
+
+                            <input type="hidden"
+                                   th:if="${_csrf != null}"
+                                   th:name="${_csrf.parameterName}"
+                                   th:value="${_csrf.token}">
+
+                            <select name="status" required>
+                                <option value="PENDING"
+                                        th:selected="${report.status == 'PENDING'}">
+                                    Pending
+                                </option>
+
+                                <option value="IN_PROGRESS"
+                                        th:selected="${report.status == 'IN_PROGRESS'}">
+                                    In Progress
+                                </option>
+
+                                <option value="RESOLVED"
+                                        th:selected="${report.status == 'RESOLVED'}">
+                                    Resolved
+                                </option>
+                            </select>
+
+                            <button type="submit"
+                                    class="button update-button">
+                                Update Status
+                            </button>
+
+                        </form>
+                    </td>
+
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(reports)}">
+                    <td colspan="12" class="empty-state">
+                        No emergency reports have been submitted yet.
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+
+    </section>
+
+</main>
+
+<footer>
+    Smart Emergency Tracking and Response Management System
+</footer>
+
+</body>
+</html>

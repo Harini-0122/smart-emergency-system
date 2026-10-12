@@ -1,0 +1,708 @@
+x
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Smart Emergency | Emergency Response System</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            color: #172b4d;
+            background: #ffffff;
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: #ffffff;
+            padding: 17px 7%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid #e5eaf1;
+            box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04);
+        }
+
+        .logo {
+            font-size: 23px;
+            font-weight: bold;
+            color: #102a43;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            color: #243b53;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .nav-links a:hover {
+            color: #ef3948;
+        }
+
+        .nav-links .nav-login {
+            background: #ef3948;
+            color: #ffffff;
+            padding: 10px 17px;
+            border-radius: 7px;
+        }
+
+        .nav-links .nav-login:hover {
+            background: #d92335;
+            color: #ffffff;
+        }
+
+        /* Hero section */
+        .hero {
+            background: #ffffff;
+            padding: 75px 7%;
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            align-items: center;
+            gap: 55px;
+            min-height: 570px;
+        }
+
+        .hero-label {
+            display: inline-block;
+            background: #fff1f2;
+            color: #c92535;
+            border: 1px solid #fecdd3;
+            padding: 8px 14px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 22px;
+        }
+
+        .hero h1 {
+            color: #102a43;
+            font-size: clamp(36px, 4.5vw, 56px);
+            line-height: 1.18;
+            margin-bottom: 22px;
+        }
+
+        .hero h1 span {
+            color: #ef3948;
+        }
+
+        .hero-description {
+            color: #64748b;
+            max-width: 580px;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 13px 22px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            transition: 0.2s;
+        }
+
+        .btn-primary {
+            background: #ef3948;
+            color: #ffffff;
+            border: 1px solid #ef3948;
+        }
+
+        .btn-primary:hover {
+            background: #d92335;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            color: #102a43;
+        }
+
+        .btn-outline:hover {
+            border-color: #ef3948;
+            color: #ef3948;
+        }
+
+        /* Right-side emergency card */
+        .hero-visual {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .emergency-card {
+            width: 100%;
+            max-width: 410px;
+            padding: 35px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            box-shadow: 0 15px 45px rgba(15, 23, 42, 0.09);
+        }
+
+        .emergency-icon {
+            font-size: 64px;
+            margin-bottom: 10px;
+        }
+
+        .emergency-card h2 {
+            color: #102a43;
+            font-size: 25px;
+            margin-bottom: 8px;
+        }
+
+        .emergency-card > p {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .feature-row {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            margin-top: 22px;
+            padding-top: 18px;
+            border-top: 1px solid #e9eef5;
+        }
+
+        .feature-check {
+            flex-shrink: 0;
+            background: #dcfce7;
+            color: #166534;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-weight: bold;
+        }
+
+        .feature-row strong {
+            display: block;
+            color: #243b53;
+            font-size: 14px;
+        }
+
+        .feature-row small {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        /* Features section */
+        .section {
+            padding: 75px 7%;
+            background: #f8fafc;
+        }
+
+        .section-heading {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 42px;
+        }
+
+        .eyebrow {
+            color: #ef3948;
+            font-size: 13px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .section-heading h2 {
+            font-size: 34px;
+            margin: 10px 0;
+            color: #102a43;
+        }
+
+        .section-heading p {
+            color: #64748b;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 22px;
+        }
+
+        .feature-card {
+            background: #ffffff;
+            padding: 30px 25px;
+            border-radius: 15px;
+            border: 1px solid #e5edf5;
+            box-shadow: 0 5px 20px rgba(15, 23, 42, 0.035);
+            transition: 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+        }
+
+        .feature-icon {
+            width: 55px;
+            height: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 13px;
+            background: #fff1f2;
+            font-size: 27px;
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            color: #102a43;
+            font-size: 19px;
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        /* How it works */
+        .how-section {
+            background: #ffffff;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 25px;
+            max-width: 1050px;
+            margin: auto;
+        }
+
+        .step {
+            text-align: center;
+            padding: 25px 20px;
+        }
+
+        .step-number {
+            margin: 0 auto 18px;
+            width: 55px;
+            height: 55px;
+            background: #fff1f2;
+            color: #ef3948;
+            border: 1px solid #fecdd3;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .step h3 {
+            color: #102a43;
+            margin-bottom: 10px;
+        }
+
+        .step p {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        /* Call to action */
+        .cta {
+            margin: 65px 7%;
+            padding: 48px 30px;
+            text-align: center;
+            border-radius: 20px;
+            background: #fff1f2;
+            border: 1px solid #ffe0e4;
+        }
+
+        .cta h2 {
+            color: #102a43;
+            font-size: 30px;
+            margin-bottom: 12px;
+        }
+
+        .cta p {
+            color: #64748b;
+            margin-bottom: 25px;
+        }
+
+        /* Footer */
+        footer {
+            background: #ffffff;
+            color: #102a43;
+            padding: 30px 7%;
+            text-align: center;
+            border-top: 1px solid #e5eaf1;
+        }
+
+        footer p {
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #334e68;
+            font-size: 13px;
+        }
+
+        .footer-links a:hover {
+            color: #ef3948;
+        }
+
+        /* Responsive layout */
+        @media (max-width: 850px) {
+            .hero {
+                grid-template-columns: 1fr;
+                padding-top: 55px;
+                gap: 40px;
+            }
+
+            .hero-visual {
+                justify-content: flex-start;
+            }
+
+            .emergency-card {
+                max-width: 520px;
+            }
+
+            .feature-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 600px) {
+            .navbar {
+                padding: 16px 5%;
+            }
+
+            .logo {
+                font-size: 20px;
+            }
+
+            .nav-links {
+                gap: 14px;
+            }
+
+            .hero {
+                padding: 50px 6%;
+            }
+
+            .hero h1 {
+                font-size: 36px;
+            }
+
+            .hero-buttons .btn {
+                width: 100%;
+            }
+
+            .section {
+                padding: 55px 6%;
+            }
+
+            .section-heading h2 {
+                font-size: 28px;
+            }
+
+            .feature-grid,
+            .steps {
+                grid-template-columns: 1fr;
+            }
+
+            .cta {
+                margin: 35px 5%;
+                padding: 35px 20px;
+            }
+
+            .cta h2 {
+                font-size: 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- Navigation -->
+<nav class="navbar">
+    <a th:href="@{/}" class="logo">
+        🚨 Smart Emergency
+    </a>
+
+    <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#how-it-works">How It Works</a>
+        <a th:href="@{/login}" class="nav-login">Citizen Login</a>
+        <a th:href="@{/admin-login}">Admin Login</a>
+    </div>
+</nav>
+
+<!-- Hero section -->
+<section class="hero">
+
+    <div class="hero-content">
+
+        <span class="hero-label">
+            🛡️ Smart Emergency Management
+        </span>
+
+        <h1>
+            Faster Response.<br>
+            <span>Safer Communities.</span>
+        </h1>
+
+        <p class="hero-description">
+            A centralized platform to report emergencies, track their
+            progress, and help administrators coordinate emergency
+            response more effectively.
+        </p>
+
+        <div class="hero-buttons">
+            <a th:href="@{/login}" class="btn btn-primary">
+                Report an Emergency →
+            </a>
+
+            <a href="#how-it-works" class="btn btn-outline">
+                Learn How It Works
+            </a>
+        </div>
+
+    </div>
+
+    <div class="hero-visual">
+
+        <div class="emergency-card">
+
+            <div class="emergency-icon">🚨</div>
+
+            <h2>Emergency Response</h2>
+
+            <p>
+                Report incidents and follow their progress through
+                a single, organized system.
+            </p>
+
+            <div class="feature-row">
+                <div class="feature-check">✓</div>
+                <div>
+                    <strong>Simple Emergency Reporting</strong>
+                    <small>Submit important incident details.</small>
+                </div>
+            </div>
+
+            <div class="feature-row">
+                <div class="feature-check">✓</div>
+                <div>
+                    <strong>Status Tracking</strong>
+                    <small>View the latest report status.</small>
+                </div>
+            </div>
+
+            <div class="feature-row">
+                <div class="feature-check">✓</div>
+                <div>
+                    <strong>Centralized Management</strong>
+                    <small>Organize reports in one place.</small>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- Features section -->
+<section class="section" id="features">
+
+    <div class="section-heading">
+        <span class="eyebrow">Our Features</span>
+
+        <h2>Emergency Management Made Simpler</h2>
+
+        <p>
+            Designed to make emergency reporting and incident tracking
+            more organized, accessible, and efficient.
+        </p>
+    </div>
+
+    <div class="feature-grid">
+
+        <div class="feature-card">
+            <div class="feature-icon">📢</div>
+            <h3>Emergency Reporting</h3>
+            <p>
+                Citizens can submit emergency reports with a title,
+                type, location, and description.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">📍</div>
+            <h3>Status Tracking</h3>
+            <p>
+                Citizens can check whether their reports are pending,
+                in progress, or resolved.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">🖥️</div>
+            <h3>Admin Dashboard</h3>
+            <p>
+                Authorized administrators can review submitted
+                reports and update their status.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>Report Overview</h3>
+            <p>
+                View report totals and monitor pending, in-progress,
+                and resolved emergencies.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">🔐</div>
+            <h3>Role-Based Access</h3>
+            <p>
+                Separate citizen and administrator access helps
+                protect dashboard functions.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">🗂️</div>
+            <h3>Centralized Records</h3>
+            <p>
+                Emergency reports are stored in a database for
+                organized retrieval and tracking.
+            </p>
+        </div>
+
+    </div>
+
+</section>
+
+<!-- How it works section -->
+<section class="section how-section" id="how-it-works">
+
+    <div class="section-heading">
+        <span class="eyebrow">Simple Process</span>
+
+        <h2>How It Works</h2>
+
+        <p>
+            Three simple steps to submit and track an emergency report.
+        </p>
+    </div>
+
+    <div class="steps">
+
+        <div class="step">
+            <div class="step-number">1</div>
+            <h3>Report an Emergency</h3>
+            <p>
+                Sign in as a citizen and submit the emergency type,
+                location, and incident details.
+            </p>
+        </div>
+
+        <div class="step">
+            <div class="step-number">2</div>
+            <h3>Admin Reviews the Report</h3>
+            <p>
+                The administrator reviews the report and updates its
+                status as action progresses.
+            </p>
+        </div>
+
+        <div class="step">
+            <div class="step-number">3</div>
+            <h3>Track the Progress</h3>
+            <p>
+                Sign in to check the latest status of your submitted
+                emergency report.
+            </p>
+        </div>
+
+    </div>
+
+</section>
+
+<!-- Call to action -->
+<section class="cta">
+
+    <h2>Need to Report an Emergency?</h2>
+
+    <p>
+        Sign in to submit an emergency report and follow its status.
+    </p>
+
+    <a th:href="@{/login}" class="btn btn-primary">
+        Continue to Citizen Login →
+    </a>
+
+</section>
+
+<!-- Footer -->
+<footer>
+
+    <div class="footer-links">
+        <a th:href="@{/}">Home</a>
+        <a href="#features">Features</a>
+        <a th:href="@{/login}">Citizen Login</a>
+        <a th:href="@{/admin-login}">Admin Login</a>
+    </div>
+
+    <p>
+        © 2026 Smart Emergency Tracking and Response Management System.
+        All rights reserved.
+    </p>
+
+</footer>
+
+</body>
+</html>

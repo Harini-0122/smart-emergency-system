@@ -1,0 +1,95 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Login | Smart Emergency</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f2f5fa;
+        }
+        .card {
+            width: 100%;
+            max-width: 430px;
+            padding: 35px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 35px #102a4315;
+        }
+        h1 { color: #102a43; }
+        p { color: #667085; line-height: 1.5; }
+        label {
+            display: block;
+            margin: 18px 0 7px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #ccd5e0;
+            border-radius: 8px;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 24px;
+            background: #e63946;
+            color: white;
+            border: 0;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        a { color: #1769aa; }
+        .error {
+            padding: 12px;
+            color: #991b1b;
+            background: #fee2e2;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>🔐 Administrator Login</h1>
+    <p>Sign in to manage emergency reports and response status.</p>
+
+    <div class="error" th:if="${param.error}">
+        Invalid credentials or account not authorized.
+    </div>
+
+    <div class="error" th:if="${param.denied}">
+        You do not have administrator access.
+    </div>
+
+    <form th:action="@{/login}" method="post">
+        <input type="hidden"
+               th:name="${_csrf.parameterName}"
+               th:value="${_csrf.token}">
+
+        <label for="username">Administrator Email</label>
+        <input id="username" name="username" type="email"
+               placeholder="admin@gmail.com"
+               autocomplete="username" required>
+
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password"
+               placeholder="Enter your password"
+               autocomplete="current-password" required>
+
+        <button type="submit">Sign In as Administrator</button>
+    </form>
+
+    <p><a th:href="@{/}">← Back to Home</a></p>
+</div>
+</body>
+</html>

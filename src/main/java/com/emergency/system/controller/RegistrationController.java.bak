@@ -1,0 +1,75 @@
+
+package com.emergency.system.controller;
+
+import com.emergency.system.dto.RegistrationRequest;
+import com.emergency.system.entity.AppUser;
+import com.emergency.system.entity.UserRole;
+import com.emergency.system.repository.AppUserRepository;
+import jakarta.validation.Valid;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+
+import java.util.Locale;
+
+@Controller
+public class RegistrationController {
+
+    private static final String ADMIN_EMAIL = "harini@smart.com";
+
+    private final AppUserRepository repository;
+    private final PasswordEncoder passwordEncoder;
+
+    public RegistrationController(
+            AppUserRepository repository,
+            PasswordEncoder passwordEncoder) {
+        this.repository = repository;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    @PostMapping("/register")
+    public String register(
+            @Valid @ModelAttribute("form") RegistrationRequest form,
+            BindingResult result,
+            Model model) {
+
+        String email = form.getEmail() == null
+                ? ""
+                : form.getEmail().trim().toLowerCase(Locale.ROOT);
+
+        if (email.equals(ADMIN_EMAIL)) {
+            result.rejectValue(
+                    "email",
+                    "reserved",
+                    "This email is reserved for the administrator."
+            );
+        } else if (repository.existsByEmailIgnoreCase(email)) {
+            result.rejectValue(
+                    "email",
+                    "duplicate",
+                    "This email is already registered."
+            );
+        }
+
+        if (result.hasErrors()) {
+            model.addAttribute(
+                    "error",
+                    "Please correct the highlighted fields."
+            );
+            return "register";
+        }
+
+        AppUser user = new AppUser();
+        user.setName(form.getName().trim());
+        user.setEmail(email);
+        user.setPassword(passwordEncoder.encode(form.getPassword()));
+        user.setRole(UserRole.CITIZEN);
+
+        repository.save(user);
+
+        return "redirect:/login?registered";
+    }
+}

@@ -1,0 +1,461 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Live Emergency Map | Smart Emergency</title>
+
+    <link rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 5%;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+        }
+
+        .brand {
+            color: #1d4ed8;
+            font-size: 21px;
+            font-weight: bold;
+        }
+
+        .back-link {
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 1450px;
+            margin: 25px auto;
+            padding: 0 22px;
+        }
+
+        h1 {
+            margin-bottom: 8px;
+            font-size: 27px;
+        }
+
+        .subtitle {
+            margin-bottom: 22px;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .summary {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 14px 18px;
+            border-radius: 8px;
+            border-left: 4px solid #2563eb;
+            min-width: 150px;
+        }
+
+        .summary-card strong {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 22px;
+        }
+
+        .summary-card span {
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .map-card {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
+        }
+
+        #emergencyMap {
+            width: 100%;
+            height: 550px;
+            border-radius: 8px;
+            z-index: 1;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            margin: 17px 5px 5px;
+            font-size: 13px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            display: inline-block;
+            border-radius: 50%;
+        }
+
+        .pending-dot {
+            background: #f59e0b;
+        }
+
+        .progress-dot {
+            background: #2563eb;
+        }
+
+        .resolved-dot {
+            background: #16a34a;
+        }
+
+        .message {
+            margin: 12px 0;
+            padding: 12px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .footer {
+            text-align: center;
+            color: #94a3b8;
+            padding: 24px;
+            font-size: 12px;
+        }
+
+        @media (max-width: 600px) {
+            .navbar {
+                padding: 15px;
+                gap: 12px;
+            }
+
+            .brand {
+                font-size: 17px;
+            }
+
+            .container {
+                padding: 0 12px;
+            }
+
+            #emergencyMap {
+                height: 420px;
+            }
+        }
+        .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.filters input,
+.filters select {
+    padding: 11px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background: white;
+    font-size: 13px;
+}
+
+.filters input {
+    flex: 1;
+    min-width: 220px;
+}
+
+.filters select {
+    min-width: 150px;
+}
+
+.filters button {
+    padding: 11px 15px;
+    border: none;
+    border-radius: 6px;
+    background: #2563eb;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.filters button:hover {
+    background: #1d4ed8;
+}
+
+.results-count {
+    margin: 0 0 12px;
+    color: #64748b;
+    font-size: 13px;
+}
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar">
+    <div class="brand">Smart Emergency</div>
+    <a class="back-link" th:href="@{/admin/dashboard}">
+        Back to Dashboard
+    </a>
+</nav>
+
+<main class="container">
+
+    <h1>Live Emergency Map</h1>
+    <p class="subtitle">
+        View reported emergency locations and their current response statuses.
+    </p>
+
+    <div class="summary">
+        <div class="summary-card">
+            <strong th:text="${totalReports}">0</strong>
+            <span>Total Reports</span>
+        </div>
+
+        <div class="summary-card">
+            <strong th:text="${mappedReports}">0</strong>
+            <span>Reports with Coordinates</span>
+        </div>
+    </div>
+
+    <div class="message" id="mapMessage">
+    Loading emergency locations...
+</div>
+
+<div class="filters">
+    <input
+        type="text"
+        id="locationSearch"
+        placeholder="Search by emergency or location..."
+        aria-label="Search emergencies by title or location">
+
+    <select id="statusFilter" aria-label="Filter by status">
+        <option value="ALL">All Statuses</option>
+        <option value="PENDING">Pending</option>
+        <option value="IN_PROGRESS">In Progress</option>
+        <option value="RESOLVED">Resolved</option>
+    </select>
+
+    <button type="button" id="resetFilters">Reset Filters</button>
+</div>
+
+<p id="resultsCount" class="results-count"></p>
+
+    <section class="map-card">
+        <div id="emergencyMap"></div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <span class="dot pending-dot"></span>
+                Pending
+            </div>
+
+            <div class="legend-item">
+                <span class="dot progress-dot"></span>
+                In Progress
+            </div>
+
+            <div class="legend-item">
+                <span class="dot resolved-dot"></span>
+                Resolved
+            </div>
+        </div>
+    </section>
+
+    <!-- Report data supplied by Spring Boot -->
+    <div id="reportData" hidden>
+        <div th:each="report : ${reports}"
+             th:if="${report.latitude != null and report.longitude != null
+                     and report.latitude >= -90 and report.latitude <= 90
+                     and report.longitude >= -180 and report.longitude <= 180}"
+             class="report-marker"
+             th:attr="data-lat=${report.latitude},
+                      data-lng=${report.longitude},
+                      data-title=${report.title},
+                      data-location=${report.location},
+                      data-status=${report.status},
+                      data-type=${report.emergencyType},
+                      data-id=${report.id}">
+        </div>
+    </div>
+
+</main>
+
+<footer class="footer">
+    Smart Emergency Tracking and Response Management System
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    const map = L.map('emergencyMap').setView([17.4065, 78.4772], 10);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 19
+    }).addTo(map);
+
+    const markerColors = {
+        PENDING: '#f59e0b',
+        IN_PROGRESS: '#2563eb',
+        RESOLVED: '#16a34a'
+    };
+
+    const reports = [];
+
+    document.querySelectorAll('.report-marker').forEach(function (element) {
+        const lat = Number(element.dataset.lat);
+        const lng = Number(element.dataset.lng);
+
+        if (
+            !Number.isFinite(lat) ||
+            !Number.isFinite(lng) ||
+            lat < -90 || lat > 90 ||
+            lng < -180 || lng > 180
+        ) {
+            return;
+        }
+
+        reports.push({
+            id: element.dataset.id || '',
+            title: element.dataset.title || 'Emergency report',
+            location: element.dataset.location || '',
+            status: (element.dataset.status || 'PENDING').toUpperCase(),
+            type: element.dataset.type || '',
+            lat: lat,
+            lng: lng
+        });
+    });
+
+    const markerLayer = L.layerGroup().addTo(map);
+
+    const searchInput = document.getElementById('locationSearch');
+    const statusFilter = document.getElementById('statusFilter');
+    const resetButton = document.getElementById('resetFilters');
+    const message = document.getElementById('mapMessage');
+    const resultsCount = document.getElementById('resultsCount');
+
+    function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, function (char) {
+            return {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[char];
+        });
+    }
+
+    function showReports() {
+        const query = searchInput.value.trim().toLowerCase();
+        const selectedStatus = statusFilter.value;
+
+        markerLayer.clearLayers();
+
+        const matchedReports = reports.filter(function (report) {
+            const matchesStatus =
+                selectedStatus === 'ALL' ||
+                report.status === selectedStatus;
+
+            const searchableText =
+                report.title + ' ' +
+                report.location + ' ' +
+                report.type + ' ' +
+                report.id;
+
+            const matchesSearch =
+                searchableText.toLowerCase().includes(query);
+
+            return matchesStatus && matchesSearch;
+        });
+
+        const visibleMarkers = [];
+
+        matchedReports.forEach(function (report) {
+            const color = markerColors[report.status] || '#64748b';
+
+            const marker = L.circleMarker(
+                [report.lat, report.lng],
+                {
+                    radius: 9,
+                    color: color,
+                    fillColor: color,
+                    fillOpacity: 0.9,
+                    weight: 2
+                }
+            );
+
+            marker.bindPopup(
+                '<strong>Report #' + escapeHtml(report.id) + '</strong><br>' +
+                '<strong>Emergency:</strong> ' + escapeHtml(report.title) + '<br>' +
+                '<strong>Type:</strong> ' + escapeHtml(report.type) + '<br>' +
+                '<strong>Location:</strong> ' + escapeHtml(report.location) + '<br>' +
+                '<strong>Status:</strong> ' +
+                escapeHtml(report.status.replace(/_/g, ' '))
+            );
+
+            marker.addTo(markerLayer);
+            visibleMarkers.push(marker);
+        });
+
+        resultsCount.textContent =
+            'Showing ' + matchedReports.length +
+            ' of ' + reports.length + ' mapped emergencies.';
+
+        if (matchedReports.length > 0) {
+            const group = L.featureGroup(visibleMarkers);
+            map.fitBounds(group.getBounds().pad(0.15));
+            message.textContent =
+                'Emergency locations matching your filters are displayed.';
+        } else {
+            message.textContent =
+                reports.length === 0
+                    ? 'No reports have valid saved coordinates.'
+                    : 'No mapped emergencies match your filters.';
+        }
+    }
+
+    searchInput.addEventListener('input', showReports);
+    statusFilter.addEventListener('change', showReports);
+
+    resetButton.addEventListener('click', function () {
+        searchInput.value = '';
+        statusFilter.value = 'ALL';
+        showReports();
+    });
+
+    showReports();
+</script>
+</script>
+
+</body>
+</html>

@@ -1,0 +1,486 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Register | Smart Emergency</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: #f2f5fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 25px 15px;
+            color: #172033;
+        }
+
+        .register-card {
+            width: 100%;
+            max-width: 650px;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 35px #102a4315;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 34px;
+            margin: 10px 0;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #667085;
+            margin-bottom: 28px;
+            line-height: 1.5;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin: 19px 0 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ccd5e0;
+            border-radius: 9px;
+            font-size: 16px;
+        }
+
+        input:focus {
+            outline: 2px solid #2875bd;
+            border-color: #2875bd;
+        }
+
+        .hint {
+            color: #667085;
+            font-size: 12px;
+            line-height: 1.5;
+            margin: 6px 0 0;
+        }
+
+        .register-button {
+            width: 100%;
+            padding: 15px;
+            margin-top: 28px;
+            background: #e63946;
+            color: white;
+            border: none;
+            border-radius: 9px;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .register-button:hover {
+            background: #c92f3b;
+        }
+
+        .links {
+            text-align: center;
+            margin-top: 24px;
+            color: #667085;
+            line-height: 1.8;
+        }
+
+        .links a {
+            color: #1769aa;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        /* Custom validation popup */
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(16, 42, 67, 0.55);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 9999;
+        }
+
+        .popup-overlay.show {
+            display: flex;
+        }
+
+        .popup-box {
+            width: 100%;
+            max-width: 380px;
+            background: white;
+            padding: 28px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 15px 50px #0003;
+            animation: appear 0.2s ease-out;
+        }
+
+        .popup-icon {
+            font-size: 42px;
+            margin-bottom: 10px;
+        }
+
+        .popup-box h2 {
+            margin: 5px 0 12px;
+            color: #b42318;
+        }
+
+        .popup-box p {
+            color: #475467;
+            line-height: 1.5;
+            overflow-wrap: anywhere;
+        }
+
+        .popup-box button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: #e63946;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 12px;
+        }
+
+        @keyframes appear {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 500px) {
+            .register-card {
+                padding: 25px 20px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="register-card">
+
+    <div style="text-align:center;font-size:35px;">🚨</div>
+
+    <h1>Create Your Account</h1>
+
+    <p class="subtitle">
+        Register to report emergencies and track their progress.
+    </p>
+
+    <div th:if="${errorMessage}"
+         style="background:#fee4e2;color:#b42318;padding:12px;border-radius:8px;"
+         th:text="${errorMessage}">
+        Registration failed.
+    </div>
+
+    <div th:if="${successMessage}"
+         style="background:#d1fadf;color:#067647;padding:12px;border-radius:8px;"
+         th:text="${successMessage}">
+        Registration successful.
+    </div>
+
+    <form th:action="@{/register}"
+          method="post"
+          th:object="${registrationRequest}"
+          id="registerForm"
+          novalidate>
+
+        <input type="hidden"
+               th:name="${_csrf.parameterName}"
+               th:value="${_csrf.token}">
+
+        <label for="name">Full Name</label>
+        <input
+            type="text"
+            id="name"
+            th:field="*{name}"
+            placeholder="Enter your full name"
+            minlength="2"
+            maxlength="80"
+            autocomplete="name"
+            required>
+
+        <p class="hint">
+            Start with a letter. Letters, numbers and spaces are allowed.
+        </p>
+
+        <label for="email">Email Address</label>
+        <input
+            type="text"
+            id="email"
+            th:field="*{email}"
+            placeholder="you@gmail.com"
+            maxlength="254"
+            autocomplete="email"
+            required>
+
+        <p class="hint">
+            Your email must end with @gmail.com.
+        </p>
+
+        <label for="password">Password</label>
+        <input
+            type="password"
+            id="password"
+            th:field="*{password}"
+            placeholder="Create a strong password"
+            minlength="8"
+            maxlength="72"
+            autocomplete="new-password"
+            required>
+
+        <p class="hint">
+            At least 8 characters with uppercase, lowercase, a number
+            and a special character.
+        </p>
+
+        <label for="confirmPassword">Confirm Password</label>
+        <input
+            type="password"
+            id="confirmPassword"
+            placeholder="Enter your password again"
+            minlength="8"
+            maxlength="72"
+            autocomplete="new-password"
+            required>
+
+        <button type="submit" class="register-button">
+            Create Account
+        </button>
+
+    </form>
+
+    <div class="links">
+        Already registered?
+        <a th:href="@{/login}">Sign in</a>
+        <br>
+        <a th:href="@{/}">← Back to Home</a>
+    </div>
+
+</div>
+
+<!-- Custom popup -->
+<div class="popup-overlay"
+     id="validationPopup"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="popupTitle">
+
+    <div class="popup-box">
+        <div class="popup-icon">⚠️</div>
+        <h2 id="popupTitle">Invalid Input</h2>
+        <p id="popupMessage">Please correct the entered details.</p>
+        <button type="button" id="popupClose">OK, I'll Fix It</button>
+    </div>
+
+</div>
+
+<script>
+(function () {
+    "use strict";
+
+    const form = document.getElementById("registerForm");
+    const nameInput = document.getElementById("name");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const confirmInput = document.getElementById("confirmPassword");
+
+    const popup = document.getElementById("validationPopup");
+    const popupMessage = document.getElementById("popupMessage");
+    const popupClose = document.getElementById("popupClose");
+
+    let pendingFocus = null;
+
+    function showPopup(message, field) {
+        popupMessage.textContent = message;
+        pendingFocus = field || null;
+        popup.classList.add("show");
+        popupClose.focus();
+    }
+
+    function closePopup() {
+        popup.classList.remove("show");
+
+        if (pendingFocus) {
+            pendingFocus.focus();
+            pendingFocus = null;
+        }
+    }
+
+    popupClose.addEventListener("click", closePopup);
+
+    popup.addEventListener("click", function (event) {
+        if (event.target === popup) {
+            closePopup();
+        }
+    });
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && popup.classList.contains("show")) {
+            closePopup();
+        }
+    });
+
+    function validateName(showMessage) {
+        const name = nameInput.value.trim();
+
+        if (name.length < 2 || name.length > 80) {
+            if (showMessage) {
+                showPopup(
+                    "Name must contain between 2 and 80 characters.",
+                    nameInput
+                );
+            }
+            return false;
+        }
+
+        if (!/^[A-Za-z][A-Za-z0-9 ]*$/.test(name)) {
+            if (showMessage) {
+                showPopup(
+                    "Invalid name! It must start with a letter. Only letters, numbers and spaces are allowed.",
+                    nameInput
+                );
+            }
+            return false;
+        }
+
+        return true;
+    }
+
+    function validateEmail(showMessage) {
+        const email = emailInput.value.trim();
+
+        if (!/^[A-Za-z0-9._%+-]+@gmail\.com$/i.test(email)) {
+            if (showMessage) {
+                showPopup(
+                    "Invalid email! Please enter a valid Gmail address ending with @gmail.com.",
+                    emailInput
+                );
+            }
+            return false;
+        }
+
+        return true;
+    }
+
+    function validatePassword(showMessage) {
+        const password = passwordInput.value;
+
+        let message = "";
+
+        if (password.length < 8 || password.length > 72) {
+            message = "Password must contain between 8 and 72 characters.";
+        } else if (!/[A-Z]/.test(password)) {
+            message = "Password must contain at least one uppercase letter (A-Z).";
+        } else if (!/[a-z]/.test(password)) {
+            message = "Password must contain at least one lowercase letter (a-z).";
+        } else if (!/[0-9]/.test(password)) {
+            message = "Password must contain at least one number (0-9).";
+        } else if (!/[^A-Za-z0-9]/.test(password)) {
+            message = "Password must contain at least one special character, such as @, # or !.";
+        }
+
+        if (message) {
+            if (showMessage) {
+                showPopup(message, passwordInput);
+            }
+            return false;
+        }
+
+        return true;
+    }
+
+    function validateConfirmation(showMessage) {
+        if (confirmInput.value !== passwordInput.value) {
+            if (showMessage) {
+                showPopup(
+                    "Passwords do not match. Please enter the same password in both fields.",
+                    confirmInput
+                );
+            }
+            return false;
+        }
+
+        return true;
+    }
+
+    // Show a custom popup when a user leaves an invalid field.
+    nameInput.addEventListener("blur", function () {
+        if (nameInput.value.trim() !== "") {
+            validateName(true);
+        }
+    });
+
+    emailInput.addEventListener("blur", function () {
+        if (emailInput.value.trim() !== "") {
+            validateEmail(true);
+        }
+    });
+
+    passwordInput.addEventListener("blur", function () {
+        if (passwordInput.value !== "") {
+            validatePassword(true);
+        }
+    });
+
+    confirmInput.addEventListener("blur", function () {
+        if (confirmInput.value !== "") {
+            validateConfirmation(true);
+        }
+    });
+
+    // Clear custom error states as fields are edited.
+    [nameInput, emailInput, passwordInput, confirmInput]
+        .forEach(function (field) {
+            field.addEventListener("input", function () {
+                field.setCustomValidity("");
+            });
+        });
+
+    // Validate every field before sending the form.
+    form.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        nameInput.value = nameInput.value.trim();
+        emailInput.value = emailInput.value.trim();
+
+        if (!validateName(true)) return;
+        if (!validateEmail(true)) return;
+        if (!validatePassword(true)) return;
+        if (!validateConfirmation(true)) return;
+
+        // All client-side checks passed; submit to Spring Boot.
+        form.submit();
+    });
+
+})();
+</script>
+
+</body>
+</html>
